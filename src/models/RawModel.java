@@ -1,4 +1,4 @@
-package renderEngine;
+package models;
 //Mantiene le informazioni di ogni singolo modello
 public class RawModel {
 	private int vaoID;

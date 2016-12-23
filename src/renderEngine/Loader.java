@@ -1,5 +1,8 @@
 package renderEngine;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -10,28 +13,50 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+
+import models.RawModel;
 
 //Carica i RawModel nella VAO del modello
 public class Loader {
 	
 	private List<Integer> vaos = new ArrayList<Integer>();
 	private List<Integer> vbos = new ArrayList<Integer>();
+	private List<Integer> textures = new ArrayList<Integer>();
 	
-	public RawModel loadToVAO(float[] positions, int indices[]){
+	public RawModel loadToVAO(float[] positions, float textureCoords[] ,int indices[]){
 		//positions, è l'insieme di tutte le coordinate di tutti i vertici del modello
 		int vaoID = createVAO(); //Sta scritto sotto, binda il VAO
 		bindIndicesBuffer(indices);//
 		//createVAO, ha creato e il cursore è bindato il VAO per questo modello, return l'ID
-		storeDataInAttributeList(0, positions); //salva alla posizione 0 del VAO, il VBO 0(positions)
+		storeDataInAttributeList(0, 3, positions); //salva alla posizione 0 del VAO, il VBO 0(positions)
+		storeDataInAttributeList(1, 2, textureCoords); //salva alla posizione 0 del VAO
 		unbindVAO();
 		return new RawModel(vaoID, indices.length);
 	}
+	public int loadTexture(String fileName){
+		Texture texture = null;
+		try {
+			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/"+fileName+".png"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		int textureID = texture.getTextureID();
+		textures.add(textureID);
+		return textureID;
+	}
+	
 	public void cleanUp(){
 		for(int vao:vaos){
 			GL30.glDeleteVertexArrays(vao);
 		}
 		for(int vbo:vbos){
 			GL15.glDeleteBuffers(vbo);
+		}
+		for(int texture:textures){
+			GL11.glDeleteTextures(texture);
 		}
 	}
 	private int createVAO(){
@@ -41,14 +66,15 @@ public class Loader {
 		GL30.glBindVertexArray(vaoID); //Il cursore BINDA il VAO di questo modello		
 		return vaoID; //ritorna il l'id VAO
 	}
-	private void storeDataInAttributeList(int attributeNumber, float[] data){
+	private void storeDataInAttributeList(int attributeNumber, int coordinateSize ,float[] data){
 		int vboID = GL15.glGenBuffers(); //Crea un buffer, e ritorna ID
 		vbos.add(vboID);//lo aggiungo alla lista vbo, per poterlo eliminare dopo
 		FloatBuffer buffer = storeDataInFloatBuffer(data); //Converte array float, in buffer float
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);//Il cursore BINDA la locazione all'id vboID(vbo)
 														//il vbo per ora e' solo in ram, non nel VAO
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);//scrive il buffer nella locazione bindata sopra(VBO)
-		GL20.glVertexAttribPointer(attributeNumber, 3, GL11.GL_FLOAT, false, 0,0);//sposta il vbo bindato sopra, nella 
+		
+		GL20.glVertexAttribPointer(attributeNumber, coordinateSize, GL11.GL_FLOAT, false, 0,0);//sposta il vbo bindato sopra, nella 
 									//riga con indice attributeNumber, del VAO bindato in loadToVAO
 									//3 perche', ogni vertice ha 3 coordinate, 0,0 perche' non abbiamo dati tra le le varie tuple di coordinate (x,y,z) (x1,y1,z1)
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);//Seleziona un VBO inesistente perche' ha finito
