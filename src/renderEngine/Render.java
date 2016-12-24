@@ -12,6 +12,7 @@ import entities.Entity;
 import models.RawModel;
 import models.TexturedModel;
 import shaders.StaticShader;
+import textures.ModelTexture;
 import toolbox.Maths;
 
 public class Render {
@@ -46,15 +47,18 @@ public class Render {
 							//metodo, andiamo ad unlockare il VBO 0 , ovvero le posizioni
 							//inoltre binda il VBO 0
 		GL20.glEnableVertexAttribArray(1);//textureCoords
+		GL20.glEnableVertexAttribArray(2);//normal
 		
-		
+		//glEnableVertexAttribArray serve a passare i dati al vertexShader, i dati di in
+		//mentre shader.loadd ecc per caricare i valori delle uniform
 		//Si intende la traslazione rispetto al punto (0,0,0) quindi la sua posizione, non la traslazione dall'ultimo
 		//punto in cui si trovava perche' non viene salvato
 		//La rotazione è intesa dalla rot(0,0,0), quindi le componenti che deve avere ora, non di quanto deve ruotare
 		//dall'ultima rotazione che aveva, perche' non viene salvata
 		Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotX(),entity.getRotY(), entity.getRotZ(), entity.getScale());
 		shader.loadTransformationMatrix(transformationMatrix);//Carichiamo la matrix nello shader, passandola alla uniform transformationMatrix
-		
+		ModelTexture texture = texturedModel.getTexture();
+		shader.loadShineVariables(texture.getShineDamper(), texture.getReflectivity());
 		
 		
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);//Esiste il multitexturing, quindi cosi' specifico quale texture voglio utilizzare
@@ -64,6 +68,7 @@ public class Render {
 		
 		GL20.glDisableVertexAttribArray(0); //Locka, ed unbinda il VBO 0 di questo VAO
 		GL20.glDisableVertexAttribArray(1); //textureCoords
+		GL20.glDisableVertexAttribArray(2); //normal
 		GL30.glBindVertexArray(0);//Binda un VAO a caso, perche' ha finito
 							
 	}

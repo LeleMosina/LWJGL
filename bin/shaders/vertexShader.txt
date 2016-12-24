@@ -2,17 +2,39 @@
 
 in vec3 position;
 in vec2 textureCoords;
+in vec3 normal;
+//Tutti i valori di in, sono presi dal VAO, da java tramite glEnableVertexAttribArray
 
-out vec3 colour;
 out vec2 pass_textureCoords;
+out vec3 surfaceNormal;
+out vec3 toLightVector;
+out vec3 toCameraVector;
 
 uniform mat4 trasformationMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
+uniform vec3 lightPosition;
 
 void main(void){
 	
-	gl_Position = projectionMatrix * viewMatrix * trasformationMatrix * vec4(position, 1.0);
+	vec4 worldPosition = trasformationMatrix * vec4(position,1.0); //bodyFrame to globalFrame, sono le coordinate reali del vertice
+	 //worlPosition sarebbe la posizione del vertex * la trasformation matrix
+	 //quindi ha le coordinate rispetto al mondo globale, cioe' dove il modello si trova ora
+	 
+	gl_Position = projectionMatrix * viewMatrix * worldPosition;//moltiplicare per queste due matrici, regola il fatto se dobbiamo o meno vedere quel vertice
+																//in base alla camera e alla projection matrix
+																// la view matrix, This matrix will transform vertices from world-space to view-space.  
+																//This matrix is the inverse of the camera’s transformation matrix described above.
 	pass_textureCoords = textureCoords;
-
+	
+	surfaceNormal = (trasformationMatrix * vec4(normal,0.0)).xyz;
+				//il vettore normal del vertex, lo traslo rispetto alla trasformationMatrix
+				//cosi' da ottenere le sue coordinate reali, vec4(normal,0.0) perche' e' una direzione
+	toLightVector = lightPosition - worldPosition.xyz;
+	
+	//Non abbiamo la posizione della camera ma abbiamo, la viewMatrix dove e' contenuta la posizione negata
+	//della camera
+	toCameraVector = (inverse(viewMatrix) * vec4(0.0,0.0,0.0,1.0)).xyz - worldPosition.xyz;
+					//con inverse ricava la traslation matrix della camera, dalla view matrix
+					//che sarebbe la trasformationmatrix della camera
 }

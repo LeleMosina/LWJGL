@@ -72,7 +72,7 @@ public abstract class ShaderProgram {
 		
 	}
 	
-	//Le 4 funzioni, servono a caricare dei valori da Java al GLSL nelle uniform in RUNTIME
+	//Le 4 funzioni, servono a caricare i valori di tipo UNIFORM da Java al GLSL nelle uniform in RUNTIME degli shader
 	protected void loadFloat(int location, float value){
 		GL20.glUniform1f(location, value);
 	}

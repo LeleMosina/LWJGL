@@ -3,6 +3,7 @@ package shaders;
 import org.lwjgl.util.vector.Matrix4f;
 
 import entities.Camera;
+import entities.Light;
 import toolbox.Maths;
 
 public class StaticShader extends ShaderProgram{
@@ -13,25 +14,46 @@ public class StaticShader extends ShaderProgram{
 	private int location_trasformationMatrix;
 	private int location_projectionMatrix;
 	private int location_viewMatrix;
+	private int location_lightPosition;
+	private int location_lightColour;
+	private int location_shineDamper;
+	private int location_reflectivity;
 	
 	public StaticShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
 	}
 	
 	@Override
-	protected void bindAttributes(){
+	protected void bindAttributes(){//PER IL VERTEX SHADER, i valori di in
 		super.bindAttribute(0, "position");//Associa alla posizione 0 del VERTEXSHADER, la var position che e' nel VERTEXSHADER
 										   //poiche' piu' in la' lo useremo
+											//l'indice con cui bindiamo deve corrispondere all'ordine dei VBO nel VA0
+											//nella funzione rendere utilizza glEnableVertexAttribArray
+											//per mettere i valori in position ad esempio
 		super.bindAttribute(1, "textureCoords");
-		
+		super.bindAttribute(2, "normals");
 		
 	}
 
+	public void loadLight(Light light){
+		super.loadVector(location_lightPosition, light.getPosition());
+		super.loadVector(location_lightColour, light.getColour());
+	}
+	
+	public void loadShineVariables(float damper, float reflectivity){
+		super.loadFloat(location_shineDamper, damper);
+		super.loadFloat(location_reflectivity, reflectivity);
+	}
+	
 	@Override
 	protected void getAllUniformLocations() { //Viene richiamata nel costruttore della classe super
 		location_trasformationMatrix = super.getUniformLocation("trasformationMatrix");
 		location_projectionMatrix = super.getUniformLocation("projectionMatrix");
 		location_viewMatrix = super.getUniformLocation("viewMatrix");
+		location_lightPosition = super.getUniformLocation("lightPosition");
+		location_lightColour = super.getUniformLocation("lightColour");
+		location_shineDamper = super.getUniformLocation("shineDamper");
+		location_reflectivity = super.getUniformLocation("reflectivity");
 	}
 	
 	public void loadTransformationMatrix(Matrix4f matrix){

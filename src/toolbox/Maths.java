@@ -30,6 +30,7 @@ public class Maths {
 	 public static Matrix4f createViewMatrix(Camera camera) {
 	        Matrix4f viewMatrix = new Matrix4f();
 	        viewMatrix.setIdentity();
+	        
 	        Matrix4f.rotate((float) Math.toRadians(camera.getPitch()), new Vector3f(1, 0, 0), viewMatrix,
 	                viewMatrix);
 	        Matrix4f.rotate((float) Math.toRadians(camera.getYaw()), new Vector3f(0, 1, 0), viewMatrix, viewMatrix);//ruota
@@ -39,6 +40,11 @@ public class Maths {
 	        //per fare si che se la camera va a destra, tutto il mondo si sposta a sinistra ecc
 	        //poiche' tutte le coordinate partono da 0,0,0 la pos della camera negata è rispetto al punto 0,0,0
 	        //quindi rappresenta anche la traslazione che tutti i vertici devono avere nel senso opposto alla camera
+	        //alla fine quindi la camera rimane ferma e il mondo che si sposta
+	        /*
+	         * This matrix will transform vertices from world-space to view-space.  This matrix is the inverse of the camera’s transformation matrix described above.
+	         */
+	        
 	        Matrix4f.translate(negativeCameraPos, viewMatrix, viewMatrix);//trasla in verso opposto a dove va la camera
 	        return viewMatrix;
 	    }

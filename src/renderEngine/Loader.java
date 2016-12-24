@@ -25,13 +25,14 @@ public class Loader {
 	private List<Integer> vbos = new ArrayList<Integer>();
 	private List<Integer> textures = new ArrayList<Integer>();
 	
-	public RawModel loadToVAO(float[] positions, float textureCoords[] ,int indices[]){
+	public RawModel loadToVAO(float[] positions, float textureCoords[], float normals[] ,int indices[]){
 		//positions, è l'insieme di tutte le coordinate di tutti i vertici del modello
 		int vaoID = createVAO(); //Sta scritto sotto, binda il VAO
 		bindIndicesBuffer(indices);//
 		//createVAO, ha creato e il cursore è bindato il VAO per questo modello, return l'ID
 		storeDataInAttributeList(0, 3, positions); //salva alla posizione 0 del VAO, il VBO 0(positions)
 		storeDataInAttributeList(1, 2, textureCoords); //salva alla posizione 0 del VAO
+		storeDataInAttributeList(2, 3, normals);
 		unbindVAO();
 		return new RawModel(vaoID, indices.length);
 	}
