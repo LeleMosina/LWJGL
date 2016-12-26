@@ -28,7 +28,7 @@ public class Loader {
 	public RawModel loadToVAO(float[] positions, float textureCoords[], float normals[] ,int indices[]){
 		//positions, è l'insieme di tutte le coordinate di tutti i vertici del modello
 		int vaoID = createVAO(); //Sta scritto sotto, binda il VAO
-		bindIndicesBuffer(indices);//
+		bindIndicesBuffer(indices);//carica l'IBO
 		//createVAO, ha creato e il cursore è bindato il VAO per questo modello, return l'ID
 		storeDataInAttributeList(0, 3, positions); //salva alla posizione 0 del VAO, il VBO 0(positions)
 		storeDataInAttributeList(1, 2, textureCoords); //salva alla posizione 0 del VAO

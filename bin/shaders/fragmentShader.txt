@@ -4,13 +4,17 @@ in vec2 pass_textureCoords;
 in vec3 surfaceNormal;
 in vec3 toLightVector;
 in vec3 toCameraVector;
+in float visibility;
 
 out vec4 out_Color;
 
 uniform sampler2D textureSample;
+
+
 uniform vec3 lightColour;
 uniform float shineDamper;
 uniform float reflectivity;
+uniform vec3 skyColour;
 
 void main(){
 	vec3 unitNormal = normalize(surfaceNormal);//normalizzo il normal vector del vertice, che e' gia traslato 
@@ -23,7 +27,7 @@ void main(){
 					//il dot tra due vettori e' compreso tra 0 ed 1 quando l'angolo tra i due vettori e' tra 0 e 90
 					//i due vettori sono il vettore normal, quindi perpendicolare al vertice
 					//ed il vettore normalizzato dal vertice alla sorgente luce
-	float brightness = max(nDotl, 0.0);
+	float brightness = max(nDotl, 0.2);
 	vec3 diffuse = brightness * lightColour;
 
 
@@ -36,10 +40,19 @@ void main(){
 	
 	
 	float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
+							//dot tra il vettore della luce riflessa, e dal vertice alla camera
 	specularFactor = max(specularFactor, 0.0);
 	float dampedFactor = pow(specularFactor, shineDamper);
-	vec3 finalSpecular = dampedFactor * lightColour;
+					//il valore shineDamper, regola quanto la camera deve essere in direzione del raggio riflesso per vederlo
+	vec3 finalSpecular = dampedFactor * lightColour * reflectivity ;
 	
-	out_Color = vec4(diffuse,1.0) * texture(textureSample, pass_textureCoords) + vec4(finalSpecular, 1.0);
-
+	vec4 textureColor = texture(textureSample, pass_textureCoords);
+		//texture è come getRGB, da' il colore rgba di quel textureCoords
+		
+	if(textureColor.a<0.5){ //Se alpha di questo pixel e' minore di 0.5, non disegnarlo
+		discard; //Altrimenti vedremo il nero attorno al modello grass, fern ad esempio
+	}
+	
+	out_Color = vec4(diffuse,1.0) * textureColor + vec4(finalSpecular, 1.0);
+	out_Color = mix(vec4(skyColour,1.0), out_Color, visibility);
 }
