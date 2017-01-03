@@ -62,9 +62,8 @@ void main(void){
 	float distance = length(positionRelativeToCam.xyz);//la lunghezza di questo vettore equivale a quella del vettore camera-->vertice
 			
 	visibility = exp(-pow((distance*density),gradient));
-	//visibility = clamp(visibility, 0.0, 1.0);
+	visibility = clamp(visibility, 0.0, 1.0);
 	//calcola la visibilita di questo vertex e la passa al fragmenShader
-	visibility = 1;
 	
 	
 }

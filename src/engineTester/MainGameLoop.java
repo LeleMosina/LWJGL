@@ -13,6 +13,7 @@ import org.lwjgl.util.vector.Vector3f;
 import entities.Camera;
 import entities.Entity;
 import entities.Light;
+import entities.Player;
 import models.RawModel;
 import models.TexturedModel;
 import renderEngine.DisplayManager;
@@ -29,6 +30,7 @@ import textures.TerrainTexturePack;
 public class MainGameLoop {
 
 	public static void main(String[] args) {
+	
 		// TODO Auto-generated method stub
 		DisplayManager.createDisplay();
 		
@@ -37,7 +39,6 @@ public class MainGameLoop {
 		
 		Loader loader = new Loader();
 		Camera camera = new Camera();
-		
 		//RawModel model = OBJLoader.loadObjModel("dragon", loader);
 		
 													//Sara' uno
@@ -71,6 +72,13 @@ public class MainGameLoop {
 		
 		//staticModel.getTexture().setReflectivity(10);
 		//staticModel.getTexture().setShineDamper(10);
+		
+		RawModel bunnyModel = OBJLoader.loadObjModel("stanfordBunny", loader);
+		TexturedModel standfordBunny = new TexturedModel(bunnyModel, new ModelTexture(
+				loader.loadTexture("white")
+				));
+		
+		Player player = new Player(standfordBunny, new Vector3f(100,0,-50), 0,0,0, 1);
 		
 		List<Entity> entities = new ArrayList<Entity>();
 		Random random = new Random();
@@ -118,7 +126,9 @@ public class MainGameLoop {
 		MasterRenderer renderer = new MasterRenderer();
 		
 		while(!Display.isCloseRequested()){
-			camera.move();
+			//camera.move();
+			player.move();
+			renderer.processEntity(player);
 			
 			renderer.processTerrain(terrain);
 			renderer.processTerrain(terrain2);
@@ -127,7 +137,6 @@ public class MainGameLoop {
 				//entity.increaseRotation(0, 0, 1);
 				renderer.processEntity(entity);
 			}
-			
 			renderer.render(light,  camera);
 			DisplayManager.updateDisplay();
 		}
